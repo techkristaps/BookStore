@@ -1,2 +1,2 @@
 # BookStore
-Books store project
+Book store project
