@@ -21,7 +21,7 @@ namespace BookStore.API.Controllers
             return Ok(author.Books);
         }
 
-        [HttpGet("{bookid}")]
+        [HttpGet("{bookid}", Name = "GetBook")]
         public ActionResult<BookDto> GetBook(int authorId, int bookId)
         {
             // find an author first
@@ -41,6 +41,59 @@ namespace BookStore.API.Controllers
             }
 
             return Ok(book);
+        }
+
+        [HttpPost]
+        public ActionResult<BookDto> CreateBook(int authorId, [FromBody] BookForCreationDto book)
+        {
+            // find an author first
+            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            // demo purposes
+            var maxBooks = AuthorsDataStore.Current.Authors.SelectMany(x => x.Books).Max(b => b.Id);
+
+            var finalBook = new BookDto()
+            {
+                Id = ++maxBooks,
+                Title = book.Title
+            };
+
+            author.Books.Add(finalBook);
+
+            return CreatedAtRoute("GetBook", new
+            {
+                authorId = authorId,
+                BookId = finalBook.Id
+            }, finalBook);
+        }
+
+        [HttpPut("{bookid}")]
+        public ActionResult UpdateBook([FromRoute] int authorId, [FromRoute] int bookId, [FromBody] BookForUpdateDto book)
+        {
+            // find an author first
+            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            // find a book
+            var bookFromStore = author.Books.FirstOrDefault(x => x.Id == bookId);
+
+            if (bookFromStore == null)
+            {
+                return NotFound();
+            }
+
+            bookFromStore.Title = book.Title;
+
+            return NoContent();
         }
     }
 }
