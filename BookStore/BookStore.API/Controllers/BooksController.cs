@@ -1,5 +1,6 @@
 ﻿using BookStore.API.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.API.Controllers
@@ -93,6 +94,70 @@ namespace BookStore.API.Controllers
 
             bookFromStore.Title = book.Title;
 
+            return NoContent();
+        }
+
+        [HttpPatch("{bookid}")]
+        public ActionResult PartiallyUpdateBook(int authorId, int bookId, JsonPatchDocument<BookForUpdateDto> patchDocument)
+        {
+            // find an author first
+            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            // find a book
+            var bookFromStore = author.Books.FirstOrDefault(x => x.Id == bookId);
+
+            if (bookFromStore == null)
+            {
+                return NotFound();
+            }
+
+            var bookToPatch = new BookForUpdateDto()
+            {
+                Title = bookFromStore.Title
+            };
+
+            patchDocument.ApplyTo(bookToPatch, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!TryValidateModel(bookToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+
+            bookFromStore.Title = bookToPatch.Title;
+
+            return NoContent();
+        }
+
+        [HttpDelete("{bookid}")]
+        public ActionResult DeleteBook(int authorId, int bookId)
+        {
+            // find an author first
+            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            // find a book
+            var bookFromStore = author.Books.FirstOrDefault(x => x.Id == bookId);
+
+            if (bookFromStore == null)
+            {
+                return NotFound();
+            }
+
+            author.Books.Remove(bookFromStore);
             return NoContent();
         }
     }
