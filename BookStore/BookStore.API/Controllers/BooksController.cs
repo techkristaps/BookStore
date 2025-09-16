@@ -9,6 +9,13 @@ namespace BookStore.API.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
+        private readonly ILogger<BooksController> _logger;
+
+        public BooksController(ILogger<BooksController> logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
         [HttpGet]
         public ActionResult<IEnumerable<BookDto>> GetBooks(int authorId)
         {
@@ -16,13 +23,14 @@ namespace BookStore.API.Controllers
 
             if (author == null)
             {
+                _logger.LogInformation($"Author {authorId} was not found when accessing books.");
                 return NotFound();
             }
 
             return Ok(author.Books);
         }
 
-        [HttpGet("{bookid}", Name = "GetBook")]
+        [HttpGet("{bookId}", Name = "GetBook")]
         public ActionResult<BookDto> GetBook(int authorId, int bookId)
         {
             // find an author first
@@ -73,7 +81,7 @@ namespace BookStore.API.Controllers
             }, finalBook);
         }
 
-        [HttpPut("{bookid}")]
+        [HttpPut("{bookId}")]
         public ActionResult UpdateBook([FromRoute] int authorId, [FromRoute] int bookId, [FromBody] BookForUpdateDto book)
         {
             // find an author first
@@ -97,7 +105,7 @@ namespace BookStore.API.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{bookid}")]
+        [HttpPatch("{bookId}")]
         public ActionResult PartiallyUpdateBook(int authorId, int bookId, JsonPatchDocument<BookForUpdateDto> patchDocument)
         {
             // find an author first
@@ -138,7 +146,7 @@ namespace BookStore.API.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{bookid}")]
+        [HttpDelete("{bookId}")]
         public ActionResult DeleteBook(int authorId, int bookId)
         {
             // find an author first
