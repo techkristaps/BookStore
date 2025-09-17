@@ -1,4 +1,18 @@
+using Serilog;
+
+// lets configure serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .WriteTo.File("logs/book_log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
 var builder = WebApplication.CreateBuilder(args);
+//builder.Logging.ClearProviders();
+//builder.Logging.AddConsole();
+
+// to use serilog we configure the following
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
