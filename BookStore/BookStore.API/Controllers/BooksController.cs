@@ -10,16 +10,18 @@ namespace BookStore.API.Controllers
     public class BooksController : ControllerBase
     {
         private readonly ILogger<BooksController> _logger;
+        private readonly AuthorsDataStore _authorsDataStore;
 
-        public BooksController(ILogger<BooksController> logger)
+        public BooksController(ILogger<BooksController> logger, AuthorsDataStore authorsDataStore)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _authorsDataStore = authorsDataStore ?? throw new ArgumentNullException(nameof(authorsDataStore));
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<BookDto>> GetBooks(int authorId)
         {
-            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+            var author = _authorsDataStore.Authors.FirstOrDefault(x => x.Id == authorId);
 
             if (author == null)
             {
@@ -34,7 +36,7 @@ namespace BookStore.API.Controllers
         public ActionResult<BookDto> GetBook(int authorId, int bookId)
         {
             // find an author first
-            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+            var author = _authorsDataStore.Authors.FirstOrDefault(x => x.Id == authorId);
 
             if (author == null)
             {
@@ -56,7 +58,7 @@ namespace BookStore.API.Controllers
         public ActionResult<BookDto> CreateBook(int authorId, [FromBody] BookForCreationDto book)
         {
             // find an author first
-            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+            var author = _authorsDataStore.Authors.FirstOrDefault(x => x.Id == authorId);
 
             if (author == null)
             {
@@ -64,7 +66,7 @@ namespace BookStore.API.Controllers
             }
 
             // demo purposes
-            var maxBooks = AuthorsDataStore.Current.Authors.SelectMany(x => x.Books).Max(b => b.Id);
+            var maxBooks = _authorsDataStore.Authors.SelectMany(x => x.Books).Max(b => b.Id);
 
             var finalBook = new BookDto()
             {
@@ -85,7 +87,7 @@ namespace BookStore.API.Controllers
         public ActionResult UpdateBook([FromRoute] int authorId, [FromRoute] int bookId, [FromBody] BookForUpdateDto book)
         {
             // find an author first
-            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+            var author = _authorsDataStore.Authors.FirstOrDefault(x => x.Id == authorId);
 
             if (author == null)
             {
@@ -109,7 +111,7 @@ namespace BookStore.API.Controllers
         public ActionResult PartiallyUpdateBook(int authorId, int bookId, JsonPatchDocument<BookForUpdateDto> patchDocument)
         {
             // find an author first
-            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+            var author = _authorsDataStore.Authors.FirstOrDefault(x => x.Id == authorId);
 
             if (author == null)
             {
@@ -150,7 +152,7 @@ namespace BookStore.API.Controllers
         public ActionResult DeleteBook(int authorId, int bookId)
         {
             // find an author first
-            var author = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == authorId);
+            var author = _authorsDataStore.Authors.FirstOrDefault(x => x.Id == authorId);
 
             if (author == null)
             {

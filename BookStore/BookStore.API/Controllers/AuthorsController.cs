@@ -8,16 +8,25 @@ namespace BookStore.API.Controllers
     [ApiController]
     public class AuthorsController : ControllerBase
     {
+        private readonly AuthorsDataStore _authorsDataStore;
+
+        public AuthorsController(AuthorsDataStore authorsDataStore)
+        {
+            _authorsDataStore = authorsDataStore ?? throw new ArgumentNullException(nameof(authorsDataStore));
+        }
+
+        // IEnumerable returns a collection of items of type T
         [HttpGet]
         public ActionResult<IEnumerable<AuthorDto>> GetAuthors()
         {
-            return Ok(AuthorsDataStore.Current.Authors);
+            return Ok(_authorsDataStore.Authors);
         }
 
+        // ActionResult<T> lets you return both data and HTTP status codes
         [HttpGet("{id}")]
         public ActionResult<AuthorDto> GetAuthor(int id)
         {
-            var authorToReturn = AuthorsDataStore.Current.Authors.FirstOrDefault(x => x.Id == id);
+            var authorToReturn = _authorsDataStore.Authors.FirstOrDefault(x => x.Id == id);
 
             if (authorToReturn == null)
             {

@@ -5,7 +5,7 @@ namespace BookStore.API
     public class AuthorsDataStore
     {
         public List<AuthorDto> Authors { get; set; }
-        public static AuthorsDataStore Current { get; set; } = new AuthorsDataStore();
+        //public static AuthorsDataStore Current { get; set; } = new AuthorsDataStore();
 
         public AuthorsDataStore()
         {
